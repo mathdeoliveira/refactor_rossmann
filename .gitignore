@@ -37,6 +37,9 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+#vscode
+.vscode/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -127,3 +130,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Hydra
+
+outputs/
+
+# Data
+
+data/raw/*
+data/final/*
+data/processed/*
