@@ -5,7 +5,6 @@ import pandas as pd
 import structlog
 
 logger = structlog.getLogger()
-logger.info(f"Starting data ingesting...")
 
 
 class DataIngest:
@@ -15,7 +14,9 @@ class DataIngest:
         self.train_dataset = "train.csv"
         self.test_dataset = "test.csv"
         self.store_dataset = "store.csv"
-        self.data_raw_path = os.path.abspath(os.path.join(os.getcwd(), "data/raw"))
+        self.data_raw_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), '../data/raw'
+        )
 
     def create_data(self, train_data: bool = True) -> pd.DataFrame:
         """Function to create data into pandas dataframe
@@ -26,7 +27,7 @@ class DataIngest:
         return:
         pandas dataframe
         """
-
+        logger.info(f"Starting data ingesting...")
         df_train = pd.read_csv(self._path_train_test(), engine="python")
         df_test = pd.read_csv(self._path_train_test(train=False), engine="python")
         df_store = pd.read_csv(self._path_store(), engine="python")
@@ -35,7 +36,7 @@ class DataIngest:
             df_final = df_train.merge(df_store, on="Store")
             logger.info(f"Loaded {self.train_dataset} data from {self.data_raw_path}")
         else:
-            df_final = df_test.merge(df_store, on="Store")
+            df_final = df_test.merge(df_store, on="Store").dropna()
             logger.info(f"Loaded {self.test_dataset} data from {self.data_raw_path}")
         return df_final
 

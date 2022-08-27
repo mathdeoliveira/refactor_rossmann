@@ -120,7 +120,23 @@ def test_schema_dict_keys():
     ]
 
     # WHEN
-    schema_dict_keys = list(utils.df_schema().keys())
+    schema_dict_keys = list(utils.df_schema(train_data=True).keys())
 
     # THEN
     assert expected_schema_dict_keys == schema_dict_keys
+
+
+def test_model_directory():
+    """
+    Asserting model directory
+    """
+    # GIVEN
+    expected_model_dir = (
+        '/home/matheus/Documentos/repos/refactor_rossmann/refactor_rossmann/../models'
+    )
+
+    # WHEN
+    mdir = utils._model_dir()
+
+    # THEN
+    assert expected_model_dir == mdir

@@ -1,12 +1,13 @@
 """module responsible preprocessing data with null input and feature engineering """
-import math
 import datetime
+import math
 
+import numpy as np
 import pandas as pd
 import pandera as pa
 import structlog
-from utils import df_schema
 from data_ingest import DataIngest
+from utils import df_schema
 
 logger = structlog.getLogger()
 
@@ -17,14 +18,22 @@ class Preprocessing:
     def __init__(self) -> None:
         pass
 
-    def preprocessing(self):
+    def preprocessing(self, train_data: bool = True):
+        """Preprocessing dataset
+
+        Args:
+            train_data: if true, train dataset will be use else test data set
+
+        Returns:
+            pandas.DataFrame
+        """
         logger.info(f"Ingesting data...")
         data_ingest = DataIngest()
-        df = data_ingest.create_data()
+        df = data_ingest.create_data(train_data=train_data)
         logger.info(f"Ingested data was a success.")
 
         logger.info(f"Validating Schema...")
-        schema = pa.DataFrameSchema(df_schema())
+        schema = pa.DataFrameSchema(df_schema(train_data=train_data))
         schema.validate(df)
         logger.info(f"Validation was a success.")
 
@@ -39,21 +48,21 @@ class Preprocessing:
         logger.info(f"Preprocessing was a success.")
 
         logger.info(f"Feature engineering starting...")
-        df = self._feature_engineering(df)
+        df = self._feature_engineering(df, train_data=train_data)
         logger.info(f"Feature engineering was as success...")
         return df
 
-    def _date(self, df):
+    def _date(self, df: pd.DataFrame):
         feature_preprocessed = pd.to_datetime(df['Date'])
         return feature_preprocessed
 
-    def _competition_distance(self, df) -> pd.Series:
+    def _competition_distance(self, df: pd.DataFrame) -> pd.Series:
         feature_preprocessed = df['CompetitionDistance'].apply(
             lambda x: 200000.0 if math.isnan(x) else x
         )
         return feature_preprocessed
 
-    def _competition_open_since_month(self, df) -> pd.Series:
+    def _competition_open_since_month(self, df: pd.DataFrame) -> pd.Series:
         feature_preprocessed = df.apply(
             lambda x: x['Date'].month
             if math.isnan(x['CompetitionOpenSinceMonth'])
@@ -62,7 +71,7 @@ class Preprocessing:
         ).astype(int)
         return feature_preprocessed
 
-    def _competition_open_since_year(self, df) -> pd.Series:
+    def _competition_open_since_year(self, df: pd.DataFrame) -> pd.Series:
         feature_preprocessed = df.apply(
             lambda x: x['Date'].year
             if math.isnan(x['CompetitionOpenSinceYear'])
@@ -71,7 +80,7 @@ class Preprocessing:
         ).astype(int)
         return feature_preprocessed
 
-    def _promo2_since_week(self, df) -> pd.Series:
+    def _promo2_since_week(self, df: pd.DataFrame) -> pd.Series:
         feature_preprocessed = df.apply(
             lambda x: x['Date'].week
             if math.isnan(x['Promo2SinceWeek'])
@@ -80,7 +89,7 @@ class Preprocessing:
         ).astype(int)
         return feature_preprocessed
 
-    def _promo2_since_year(self, df) -> pd.Series:
+    def _promo2_since_year(self, df: pd.DataFrame) -> pd.Series:
         feature_preprocessed = df.apply(
             lambda x: x['Date'].year
             if math.isnan(x['Promo2SinceYear'])
@@ -119,17 +128,19 @@ class Preprocessing:
         )
         return feature_preprocessed
 
-    def _feature_engineering(self, df) -> pd.DataFrame:
+    def _feature_engineering(
+        self, df: pd.DataFrame, train_data: bool = True
+    ) -> pd.DataFrame:
         df_feature_engineering = df.copy()
-        df_feature_engineering['year'] = df_feature_engineering['Date'].dt.year
+        df_feature_engineering['year'] = df_feature_engineering['Date'].dt.year.astype(int)
 
-        df_feature_engineering['month'] = df_feature_engineering['Date'].dt.month
+        df_feature_engineering['month'] = df_feature_engineering['Date'].dt.month.astype(int)
 
-        df_feature_engineering['day'] = df_feature_engineering['Date'].dt.day
+        df_feature_engineering['day'] = df_feature_engineering['Date'].dt.day.astype(int)
 
         df_feature_engineering['week_of_year'] = (
             df_feature_engineering['Date'].dt.isocalendar().week
-        )
+        ).astype(int)
 
         df_feature_engineering['year_week'] = df_feature_engineering[
             'Date'
@@ -191,15 +202,50 @@ class Preprocessing:
             else 'regular_day'
         )
 
-        df_feature_engineering = df_feature_engineering[
-            (df_feature_engineering['Open'] != 0)
-            & (df_feature_engineering['Sales'] > 0)
-        ]
-        cols_drop = ['Customers', 'Open', 'PromoInterval', 'month_map']
-        df_feature_engineering = df_feature_engineering.drop(cols_drop, axis=1)
+        # day of week
+        df_feature_engineering['day_of_week_sin'] = df_feature_engineering[
+            'DayOfWeek'
+        ].apply(lambda x: np.sin(x * (2.0 * np.pi / 7)))
+        df_feature_engineering['day_of_week_cos'] = df_feature_engineering[
+            'DayOfWeek'
+        ].apply(lambda x: np.cos(x * (2.0 * np.pi / 7)))
+
+        # month
+        df_feature_engineering['month_sin'] = df_feature_engineering['month'].apply(
+            lambda x: np.sin(x * (2.0 * np.pi / 12))
+        )
+        df_feature_engineering['month_cos'] = df_feature_engineering['month'].apply(
+            lambda x: np.cos(x * (2.0 * np.pi / 12))
+        )
+
+        # day
+        df_feature_engineering['day_sin'] = df_feature_engineering['day'].apply(
+            lambda x: np.sin(x * (2.0 * np.pi / 30))
+        )
+        df_feature_engineering['day_cos'] = df_feature_engineering['day'].apply(
+            lambda x: np.cos(x * (2.0 * np.pi / 30))
+        )
+
+        # week of year
+        df_feature_engineering['week_of_year_sin'] = df_feature_engineering[
+            'week_of_year'
+        ].apply(lambda x: np.sin(x * (2.0 * np.pi / 52)))
+        df_feature_engineering['week_of_year_cos'] = df_feature_engineering[
+            'week_of_year'
+        ].apply(lambda x: np.cos(x * (2.0 * np.pi / 52)))
+        
+        if train_data:
+            df_feature_engineering = df_feature_engineering[
+                (df_feature_engineering['Open'] != 0)
+                & (df_feature_engineering['Sales'] > 0)
+            ]
+            cols_drop = ['Customers', 'Open', 'PromoInterval', 'month_map']
+            df_feature_engineering = df_feature_engineering.drop(cols_drop, axis=1)
+        else:
+            df_feature_engineering = df_feature_engineering[
+                (df_feature_engineering['Open'] != 0)
+            ]
+            cols_drop = ['Open', 'PromoInterval', 'month_map']
+            df_feature_engineering = df_feature_engineering.drop(cols_drop, axis=1)
 
         return df_feature_engineering
-
-
-preprocess = Preprocessing()
-preprocess.preprocessing()

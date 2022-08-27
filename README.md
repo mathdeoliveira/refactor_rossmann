@@ -19,7 +19,7 @@ Para tal será utilizado algoritmos de machine learning para que seja possível 
 
 TBD
 
-## Passo 0: Preparação do ambiente
+## Preparação do ambiente
 
 Para que seja possível reproduzir os resultados desse projeto é necessário, aqui foi utilizado o Anaconda como gerenciador de ambiente, porém pode ser utilizado qualquer um que deseja:
 
@@ -32,4 +32,20 @@ Para que seja possível reproduzir os resultados desse projeto é necessário, a
     ``` pip install -r requirements.txt ```
 
 
-## Passo 1: Experimentação
+## Estrutura do projeto
+
+- src: código fote do projeto
+- config: arquivos de configurações
+- models: arquivos serializados dos modelos utilizados no projeto
+- docs: documentação
+- notebooks: notebooks de experimentação e análise exploratória
+- tests: arquivos de testes dos códigos do projeto
+
+## Como rodar esse projeto
+
+Para executar esse projeto e visualizar ele em execução, devemos:
+1. Seguir a etapa de preparação do ambiente para instalar as bibliotecas do Python necessárias
+2. Executar o comando:
+    ``` make run ```
+3. Requisitar uma chamada na API:
+TBD

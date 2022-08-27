@@ -1,2 +1,13 @@
+catboost==1.0.6
+feature_engine==1.4.1
+hydra-core==1.2.0
+joblib==1.1.0
+lightgbm==3.3.2
+mlflow==1.27.0
+numpy==1.23.1
+omegaconf==2.2.2
 pandas==1.4.3
+pandera==0.11.0
+scikit_learn==1.1.2
 structlog==22.1.0
+xgboost==1.6.1
