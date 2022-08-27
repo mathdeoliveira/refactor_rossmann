@@ -32,7 +32,6 @@ class DataPreparation:
         mms_variables: list,
         onehot_variables: list,
         ordinal_variables: list,
-        train_data: bool = True,
     ) -> pd.DataFrame:
         """Preprocessing dataset
 
@@ -41,7 +40,6 @@ class DataPreparation:
             mms_variables: variables that will be transformed by MinMaxSclaser
             onehot_variables: variables that will be transformed by OneHotEncoder
             ordinal_variables: variables that will be transformed by OrdinalEncoder
-            train_data: if true, train dataset will be use else test data set
 
         Returns:
             pandas.DataFrame
@@ -82,30 +80,35 @@ class DataPreparation:
         X_valid = df[df['Date'] >= '2015-06-19'].copy()
         y_valid = X_valid['Sales'].values
         X_valid.drop('Sales', axis=1, inplace=True)
-        
+
         X_train = preparation_pipeline.fit_transform(X_train, y_train)
         X_valid = preparation_pipeline.transform(X_valid)
-        
+
         columns_to_drop = self._drop_columns()
         X_train.drop(columns_to_drop, axis=1, inplace=True)
         X_valid.drop(columns_to_drop, axis=1, inplace=True)
 
         logger.info(f"Saving pipeline in /models ...")
         save_model(model=preparation_pipeline, name_file='pipeline')
-        
+
         return X_train, y_train, X_valid, y_valid
-    
+
     def test_preparation(self) -> pd.DataFrame:
+        """Preprocessing test dataset
+
+        Returns:
+            pandas.DataFrame
+        """
         logger.info(f"Starting test dataset ...")
-        
+
         preprocess = Preprocessing()
-        
+
         df = preprocess.preprocessing(train_data=False)
         df = df.sort_values('Date')
         logger.info(f"Load pipeline from /models ...")
-        
+
         pipeline = load_model(name_file='pipeline')
-        
+
         columns_to_drop = self._drop_columns()
         X_test = pipeline.transform(df)
         X_test.drop(columns_to_drop, axis=1, inplace=True)

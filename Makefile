@@ -1,6 +1,3 @@
-run:
-	make test
-
 test:
 	pytest tests/
 
@@ -26,6 +23,3 @@ firefly:
 
 firefly-shutdown:
 	fuser -k 8000/tcp
-
-testing:
-	echo $(ARGS)

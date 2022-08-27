@@ -32,18 +32,18 @@ class DataIngest:
         df_test = pd.read_csv(self._path_train_test(train_data=False), engine="python")
         df_store = pd.read_csv(self._path_store(), engine="python")
 
-        if train_data == True:
+        if train_data is True:
             logger.info(f"Loading {self.train_dataset} data from {self.data_raw_path}")
-            return df_train.merge(df_store, on="Store")         
+            return df_train.merge(df_store, on="Store")
         else:
             logger.info(f"Loading {self.test_dataset} data from {self.data_raw_path}")
             return df_test.merge(df_store, on="Store").dropna()
 
     def _path_train_test(self, train_data: bool = True) -> str:
 
-        if train_data == True:
+        if train_data is True:
             return os.path.join(self.data_raw_path, self.train_dataset)
-            
+
         else:
             return os.path.join(self.data_raw_path, self.test_dataset)
 
