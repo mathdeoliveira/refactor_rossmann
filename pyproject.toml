@@ -1,15 +1,15 @@
 [tool.pylint.messages_control]
 
 disable = [
-    "missing-function-docstring",
-    "missing-final-newline",
-    "missing-class-docstring",
-    "missing-module-docstring",
     "invalid-name",
     "f-string-without-interpolation",
     "too-few-public-methods",
     "import-error",
-    "protected-access"
+    "protected-access",
+    "too-many-arguments",
+    "too-many-locals",
+    "no-else-return",
+    "no-value-for-parameter"
 ]
 
 [tool.black]
@@ -19,4 +19,4 @@ skip-string-normalization = true
 
 [tool.isort]
 multi_line_output = 3
-length_sort = true
+length_sort = false
