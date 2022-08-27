@@ -139,4 +139,5 @@ dmypy.json
 # Hydra
 
 outputs/
+*.json
 

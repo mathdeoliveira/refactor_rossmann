@@ -14,7 +14,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import cross_val_predict
 from utils import save_model
-
+import numpy as np
 logger = structlog.getLogger()
 
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
@@ -37,7 +37,7 @@ def train(config: DictConfig) -> None:
     ordinal = list(config.data_preparation.ordinal)
     data_prep = DataPreparation()
 
-    X_train, y_train, X_valid, y_valid = data_prep.preparation(
+    X_train, y_train, X_valid, y_valid = data_prep.train_preparation(
         rs_variables=rs,
         mms_variables=mms,
         onehot_variables=onehot,
@@ -76,6 +76,7 @@ def train(config: DictConfig) -> None:
             }
 
             metrics = {**metrics_valid, **metrics_train}
+            
             mlflow.log_artifact(
                 local_path=os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
@@ -88,7 +89,6 @@ def train(config: DictConfig) -> None:
                     f'../models/pipeline.joblib',
                 )
             )
-
             mlflow.log_metrics(metrics)
             mlflow.end_run()
             logger.info(f"Logged in mlflow for model: {model_name}")
@@ -103,14 +103,17 @@ def _regression_metrics(actual: pd.Series, pred: pd.Series) -> dict:
 
     Returns:
         Series with the following values in a labeled index:
-        MAE, RMSE
+        MAE, MSE and RMSE
     """
+    
+    actual = np.expm1(actual)
+    pred = np.expm1(pred)
+    
     return {
         "MAE": mean_absolute_error(actual, pred),
         "MSE": mean_squared_error(actual, pred),
         "RMSE": mean_squared_error(actual, pred, squared=False),
     }
-
 
 if __name__ == '__main__':
     train()

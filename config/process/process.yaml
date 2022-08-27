@@ -20,5 +20,3 @@ data_preparation:
       - StoreType
   ordinal:
       - Assortment
-  target:
-      - Sales

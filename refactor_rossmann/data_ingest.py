@@ -28,25 +28,24 @@ class DataIngest:
         pandas dataframe
         """
         logger.info(f"Starting data ingesting...")
-        df_train = pd.read_csv(self._path_train_test(), engine="python")
-        df_test = pd.read_csv(self._path_train_test(train=False), engine="python")
+        df_train = pd.read_csv(self._path_train_test(train_data=True), engine="python")
+        df_test = pd.read_csv(self._path_train_test(train_data=False), engine="python")
         df_store = pd.read_csv(self._path_store(), engine="python")
 
-        if train_data:
-            df_final = df_train.merge(df_store, on="Store")
-            logger.info(f"Loaded {self.train_dataset} data from {self.data_raw_path}")
+        if train_data == True:
+            logger.info(f"Loading {self.train_dataset} data from {self.data_raw_path}")
+            return df_train.merge(df_store, on="Store")         
         else:
-            df_final = df_test.merge(df_store, on="Store").dropna()
-            logger.info(f"Loaded {self.test_dataset} data from {self.data_raw_path}")
-        return df_final
+            logger.info(f"Loading {self.test_dataset} data from {self.data_raw_path}")
+            return df_test.merge(df_store, on="Store").dropna()
 
-    def _path_train_test(self, train=True) -> str:
+    def _path_train_test(self, train_data: bool = True) -> str:
 
-        if train:
-            path_data = os.path.join(self.data_raw_path, self.train_dataset)
+        if train_data == True:
+            return os.path.join(self.data_raw_path, self.train_dataset)
+            
         else:
-            path_data = os.path.join(self.data_raw_path, self.test_dataset)
-        return path_data
+            return os.path.join(self.data_raw_path, self.test_dataset)
 
     def _path_store(self) -> str:
         path_store = os.path.join(self.data_raw_path, self.store_dataset)
