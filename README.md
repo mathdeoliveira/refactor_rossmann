@@ -34,7 +34,7 @@ Para tal será utilizado algoritmos de machine learning para que seja possível 
 Para executar esse projeto e visualizar ele em execução, devemos:
 - Etapa de ambiente
 1. Possuir o Python instalado na versão 3.9.12 **``` conda create -n venv python=3.9.12 ```**
-2. Clonar o repositório do (GitHub)](https://github.com/mathdeoliveira/refactor_rossmann)
+2. Clonar o repositório do [(GitHub)](https://github.com/mathdeoliveira/refactor_rossmann)
 3. Realizar o download dos arquivos do Google Drive [(clique aqui)](https://drive.google.com/drive/folders/1X0V7RcjYuSkyv4UJnGPdzBjcx2XRzwXU?usp=sharing) e insera na pasta **```data/raw```**, ficando de acordo com a foto abaixo:
 <p align="center" width="100%">
     <img width="30%" src="https://i.imgur.com/9F9526l.png">
