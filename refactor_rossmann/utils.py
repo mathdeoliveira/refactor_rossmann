@@ -49,7 +49,7 @@ def df_schema(train_data: bool = True) -> dict:
     Returns:
         Schema for training dataset or test dataset
     """
-    if train_data == True:
+    if train_data is True:
         schema = {
             'Store': Column(int),
             'DayOfWeek': Column(int),

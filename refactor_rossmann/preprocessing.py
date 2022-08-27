@@ -18,7 +18,7 @@ class Preprocessing:
     def __init__(self) -> None:
         pass
 
-    def preprocessing(self, train_data: bool = True):
+    def preprocessing(self, train_data: bool = True) -> pd.DataFrame:
         """Preprocessing dataset
 
         Args:
@@ -132,11 +132,17 @@ class Preprocessing:
         self, df: pd.DataFrame, train_data: bool = True
     ) -> pd.DataFrame:
         df_feature_engineering = df.copy()
-        df_feature_engineering['year'] = df_feature_engineering['Date'].dt.year.astype(int)
+        df_feature_engineering['year'] = df_feature_engineering['Date'].dt.year.astype(
+            int
+        )
 
-        df_feature_engineering['month'] = df_feature_engineering['Date'].dt.month.astype(int)
+        df_feature_engineering['month'] = df_feature_engineering[
+            'Date'
+        ].dt.month.astype(int)
 
-        df_feature_engineering['day'] = df_feature_engineering['Date'].dt.day.astype(int)
+        df_feature_engineering['day'] = df_feature_engineering['Date'].dt.day.astype(
+            int
+        )
 
         df_feature_engineering['week_of_year'] = (
             df_feature_engineering['Date'].dt.isocalendar().week
@@ -233,7 +239,7 @@ class Preprocessing:
         df_feature_engineering['week_of_year_cos'] = df_feature_engineering[
             'week_of_year'
         ].apply(lambda x: np.cos(x * (2.0 * np.pi / 52)))
-        
+
         if train_data:
             df_feature_engineering = df_feature_engineering[
                 (df_feature_engineering['Open'] != 0)

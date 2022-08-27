@@ -4,6 +4,7 @@ import os
 import hydra
 import lightgbm as lgb
 import mlflow
+import numpy as np
 import pandas as pd
 import structlog
 import xgboost as xgb
@@ -14,7 +15,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import cross_val_predict
 from utils import save_model
-import numpy as np
+
 logger = structlog.getLogger()
 
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
@@ -44,9 +45,9 @@ def train(config: DictConfig) -> None:
         ordinal_variables=ordinal,
         train_data=True,
     )
-    
+
     logger.info("Starting training...")
-    
+
     with mlflow.start_run():
 
         models = {
@@ -76,7 +77,7 @@ def train(config: DictConfig) -> None:
             }
 
             metrics = {**metrics_valid, **metrics_train}
-            
+
             mlflow.log_artifact(
                 local_path=os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
@@ -105,15 +106,16 @@ def _regression_metrics(actual: pd.Series, pred: pd.Series) -> dict:
         Series with the following values in a labeled index:
         MAE, MSE and RMSE
     """
-    
+
     actual = np.expm1(actual)
     pred = np.expm1(pred)
-    
+
     return {
         "MAE": mean_absolute_error(actual, pred),
         "MSE": mean_squared_error(actual, pred),
         "RMSE": mean_squared_error(actual, pred, squared=False),
     }
+
 
 if __name__ == '__main__':
     train()
