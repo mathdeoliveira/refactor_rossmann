@@ -1,12 +1,17 @@
 """module responsible for testing data ingest """
 import os
+from refactor_rossmann import data_ingest
 
+di = data_ingest.DataIngest()
 
 def test_data_raw_path():
     """
     Asserting data raw path
     """
+    pass
 
-    expected_path = os.path.abspath(os.path.join(os.getcwd(), "data/raw"))
-
-    assert expected_path == '/home/matheus/Documentos/repos/refactor_rossmann/data/raw'
+def test_path_train_test():
+    """
+    Asserting train and test path dir
+    """
+    pass

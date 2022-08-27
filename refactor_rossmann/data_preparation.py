@@ -26,7 +26,7 @@ class DataPreparation:
         self.onehot = OneHotEncoder(sparse=False)
         self.ordinal = OrdinalEncoder()
 
-    def preparation(
+    def train_preparation(
         self,
         rs_variables: list,
         mms_variables: list,
@@ -71,37 +71,45 @@ class DataPreparation:
 
         preprocess = Preprocessing()
 
-        if train_data:
-            df = preprocess.preprocessing(train_data=True)
-            df = df.sort_values('Date')
-            df['Sales'] = np.log1p(df['Sales'])
+        df = preprocess.preprocessing(train_data=True)
+        df = df.sort_values('Date')
+        df['Sales'] = np.log1p(df['Sales'])
 
-            X_train = df[df['Date'] < '2015-06-19'].copy()
-            y_train = X_train['Sales'].values
+        X_train = df[df['Date'] < '2015-06-19'].copy()
+        y_train = X_train['Sales'].values
+        X_train.drop('Sales', axis=1, inplace=True)
 
-            X_valid = df[df['Date'] >= '2015-06-19'].copy()
-            y_valid = X_valid['Sales'].values
+        X_valid = df[df['Date'] >= '2015-06-19'].copy()
+        y_valid = X_valid['Sales'].values
+        X_valid.drop('Sales', axis=1, inplace=True)
+        
+        X_train = preparation_pipeline.fit_transform(X_train, y_train)
+        X_valid = preparation_pipeline.transform(X_valid)
+        
+        columns_to_drop = self._drop_columns()
+        X_train.drop(columns_to_drop, axis=1, inplace=True)
+        X_valid.drop(columns_to_drop, axis=1, inplace=True)
 
-            X_train = preparation_pipeline.fit_transform(X_train, y_train)
-            X_valid = preparation_pipeline.transform(X_valid)
-
-            columns_to_drop = self._drop_columns()
-            X_train.drop(columns_to_drop, axis=1, inplace=True)
-            X_valid.drop(columns_to_drop, axis=1, inplace=True)
-
-            logger.info(f"Saving pipeline in /models ...")
-            save_model(model=preparation_pipeline, name_file='pipeline')
-            return X_train, y_train, X_valid, y_valid
-        else:
-            logger.info(f"Starting test dataset ...")
-            df = preprocess.preprocessing(train_data=False)
-            df = df.sort_values('Date')
-            df['Sales'] = np.log1p(df['Sales'])
-            logger.info(f"Load pipeline from /models ...")
-            pipeline = load_model(name_file='pipeline')
-            X_test = pipeline.transform(df)
-            y_test = df['Sales'].values
-            return X_test, y_test
+        logger.info(f"Saving pipeline in /models ...")
+        save_model(model=preparation_pipeline, name_file='pipeline')
+        
+        return X_train, y_train, X_valid, y_valid
+    
+    def test_preparation(self) -> pd.DataFrame:
+        logger.info(f"Starting test dataset ...")
+        
+        preprocess = Preprocessing()
+        
+        df = preprocess.preprocessing(train_data=False)
+        df = df.sort_values('Date')
+        logger.info(f"Load pipeline from /models ...")
+        
+        pipeline = load_model(name_file='pipeline')
+        
+        columns_to_drop = self._drop_columns()
+        X_test = pipeline.transform(df)
+        X_test.drop(columns_to_drop, axis=1, inplace=True)
+        return X_test
 
     def _drop_columns(self) -> list:
         """Drop columns
@@ -110,7 +118,6 @@ class DataPreparation:
         """
         columns_to_drop = [
             'Date',
-            'Sales',
             'StateHoliday',
             'StoreType',
             'year_week',

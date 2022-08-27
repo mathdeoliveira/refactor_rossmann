@@ -245,7 +245,7 @@ class Preprocessing:
             df_feature_engineering = df_feature_engineering[
                 (df_feature_engineering['Open'] != 0)
             ]
-            cols_drop = ['Open', 'PromoInterval', 'month_map']
+            cols_drop = ['Id', 'Open', 'PromoInterval', 'month_map']
             df_feature_engineering = df_feature_engineering.drop(cols_drop, axis=1)
 
         return df_feature_engineering

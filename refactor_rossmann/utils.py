@@ -40,7 +40,7 @@ def load_model(name_file: str):
     return model
 
 
-def df_schema(train_data) -> dict:
+def df_schema(train_data: bool = True) -> dict:
     """Return schema for dataframe checks
 
     Args:
@@ -49,7 +49,7 @@ def df_schema(train_data) -> dict:
     Returns:
         Schema for training dataset or test dataset
     """
-    if train_data:
+    if train_data == True:
         schema = {
             'Store': Column(int),
             'DayOfWeek': Column(int),
