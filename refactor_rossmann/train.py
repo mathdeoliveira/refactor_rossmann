@@ -42,8 +42,7 @@ def train(config: DictConfig) -> None:
         rs_variables=rs,
         mms_variables=mms,
         onehot_variables=onehot,
-        ordinal_variables=ordinal,
-        train_data=True,
+        ordinal_variables=ordinal
     )
 
     logger.info("Starting training...")
